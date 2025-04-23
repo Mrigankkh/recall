@@ -37,16 +37,16 @@ class MemoryEntry:
         }
 
     @staticmethod
-    def from_dict(data: dict) -> 'MemoryEntry':
+    def from_dict(data: dict) -> "MemoryEntry":
         return MemoryEntry(
-            id=data.get("id", str(uuid.uuid4())),
+            id=data["id"],
             user_id=data["user_id"],
             content=data["content"],
             created_at=datetime.fromisoformat(data["created_at"]),
-            last_accessed=datetime.fromisoformat(data["last_accessed"]),
+            last_accessed=datetime.fromisoformat(data.get("last_accessed", data["created_at"])),
             tags=data.get("tags", []),
             importance=data.get("importance", 0.5),
             ttl_days=data.get("ttl_days", 365),
-            source=data.get("source", "unknown"),
+            source=data.get("source", "import"),
             embedding=data.get("embedding"),
         )
