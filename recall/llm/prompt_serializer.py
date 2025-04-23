@@ -1,5 +1,5 @@
 from typing import List
-from memory.memory_entry import MemoryEntry
+from ..memory.memory_entry import MemoryEntry
 
 def serialize_for_openai(memories: List[MemoryEntry]) -> str:
     """

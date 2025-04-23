@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 import numpy as np
 from typing import List, Optional
-from memory.memory_entry import MemoryEntry
+from .memory_entry import MemoryEntry
 
 class MemoryStore:
     def __init__(self, db_path: str = "recall.db"):

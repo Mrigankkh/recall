@@ -1,6 +1,6 @@
-from memory.memory_entry import MemoryEntry
-from memory.memory_store import MemoryStore
-from llm.extractor import extract_memories_from_input
+from ..memory.memory_entry import MemoryEntry
+from ..memory.memory_store import MemoryStore
+from ..llm.extractor import extract_memories_from_input
 
 # Then pass it into extract_memories_from_input()
 

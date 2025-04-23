@@ -1,0 +1,20 @@
+[project]
+name = "recall-sdk"
+version = "0.1.0"
+description = "A pluggable memory layer for LLM apps"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+
+authors = [
+  {name = "Mrigank Khandelwal", email = "khandelwal.mr@northeastern.edu"}
+]
+
+dependencies = [
+  "openai>=1.0.0",
+  "numpy",
+  "python-dotenv"
+]
+
+[project.urls]
+Homepage = "https://github.com/Mrigankkh/recall"

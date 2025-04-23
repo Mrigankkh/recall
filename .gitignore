@@ -3,3 +3,7 @@
 .db
 __pycache__/
 *.sqlite3
+recall.db
+*.egg-info
+*.db
+.venv
