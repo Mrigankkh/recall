@@ -1,20 +1,16 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 import uuid
 
-from dataclasses import dataclass, field
-from datetime import datetime
-from typing import List, Optional
-import uuid
 
 @dataclass
 class MemoryEntry:
     user_id: str
     content: str
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    last_accessed: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    last_accessed: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     tags: List[str] = field(default_factory=list)
     importance: float = 0.5
     ttl_days: int = 365

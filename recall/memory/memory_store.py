@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 import numpy as np
 from typing import List, Optional
 from .memory_entry import MemoryEntry
@@ -47,21 +47,18 @@ class MemoryStore:
         ))
         self.conn.commit()
         
-    def get_memories(self, user_id: str,update_access_time=True) -> List[MemoryEntry]:
-        cursor = self.conn.execute('''
-            SELECT * FROM memories WHERE user_id = ?
-        ''', (user_id,))
+    def get_memories(self, user_id: str, update_access_time: bool = True) -> List[MemoryEntry]:
+        cursor = self.conn.execute('SELECT * FROM memories WHERE user_id = ?', (user_id,))
         rows = cursor.fetchall()
 
         memories = []
         for row in rows:
             if update_access_time:
-                self._update_last_accessed(row[0])  # update timestamp
-                memory = self._row_to_memory(row)
-                memories.append(memory)
+                self._update_last_accessed(row[0])
+            memory = self._row_to_memory(row)
+            memories.append(memory)
 
         return memories
-
 
     def delete_memory(self, memory_id: str):
         self.conn.execute('''
@@ -129,7 +126,7 @@ class MemoryStore:
         return float(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
     
     def remove_expired_memories(self):
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cursor = self.conn.execute('SELECT id, created_at, ttl_days FROM memories')
         rows = cursor.fetchall()
         for row in rows:
@@ -141,7 +138,7 @@ class MemoryStore:
     def _update_last_accessed(self, memory_id: str):
         self.conn.execute(
             "UPDATE memories SET last_accessed = ? WHERE id = ?",
-            (datetime.utcnow().isoformat(), memory_id)
+            (datetime.now(timezone.utc).isoformat(), memory_id)
         )
         self.conn.commit()
         
@@ -158,13 +155,15 @@ class MemoryStore:
                 self.delete_memory(row[0])
     
     def export_memories(self, user_id: str, path: Optional[str] = None) -> List[dict]:
-        memories = self.get_memories(user_id, False)
+        memories = self.get_memories(user_id, update_access_time=False)  
         serialized = [mem.to_dict() for mem in memories]
 
         if path:
             with open(path, "w") as f:
                 json.dump(serialized, f, indent=2)
+
         return serialized
+
     
     def import_memories(self, data: List[dict]):
         for mem_data in data:
