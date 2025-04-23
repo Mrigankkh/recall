@@ -1,6 +1,6 @@
 from ..memory.memory_entry import MemoryEntry
 from ..memory.memory_store import MemoryStore
-from ..llm.extractor import extract_memories_from_input
+from ..extraction.extractor import extract_memories_from_input
 from ..extraction.strategies import ExtractionStrategy
 
 from typing import Callable, Dict, List, Optional
@@ -26,8 +26,8 @@ def handle_user_message(
         extracted_memories = extract_from_batch(user_id, message, store, llm_call, metadata)
 
     elif extraction_strategy == ExtractionStrategy.HEURISTIC:
-        from ..extraction.strategies import is_memory_worthy
-        if is_memory_worthy(message):
+        from ..extraction.strategies import extract_using_heuristic
+        if extract_using_heuristic(message):
             extracted_memories = extract_memories_from_input(message, llm_call)
         else:
             extracted_memories = []
