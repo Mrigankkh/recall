@@ -47,7 +47,7 @@ class MemoryStore:
         ))
         self.conn.commit()
         
-    def get_memories(self, user_id: str) -> List[MemoryEntry]:
+    def get_memories(self, user_id: str,update_access_time=True) -> List[MemoryEntry]:
         cursor = self.conn.execute('''
             SELECT * FROM memories WHERE user_id = ?
         ''', (user_id,))
@@ -55,9 +55,10 @@ class MemoryStore:
 
         memories = []
         for row in rows:
-            self._update_last_accessed(row[0])  # update timestamp
-            memory = self._row_to_memory(row)
-            memories.append(memory)
+            if update_access_time:
+                self._update_last_accessed(row[0])  # update timestamp
+                memory = self._row_to_memory(row)
+                memories.append(memory)
 
         return memories
 
@@ -155,3 +156,24 @@ class MemoryStore:
             to_delete = rows[:len(rows) - max_entries]
             for row in to_delete:
                 self.delete_memory(row[0])
+    
+    def export_memories(self, user_id: str, path: Optional[str] = None) -> List[dict]:
+        memories = self.get_memories(user_id, False)
+        serialized = [mem.to_dict() for mem in memories]
+
+        if path:
+            with open(path, "w") as f:
+                json.dump(serialized, f, indent=2)
+        return serialized
+    
+    def import_memories(self, data: List[dict]):
+        for mem_data in data:
+            try:
+                mem = MemoryEntry.from_dict(mem_data)
+                self.add_memory(mem)
+            except Exception as e:
+                print(f"[import_memories] Skipping invalid memory: {e}")
+                
+    def clear_user_memories(self, user_id: str):
+        self.conn.execute("DELETE FROM memories WHERE user_id = ?", (user_id,))
+        self.conn.commit()
