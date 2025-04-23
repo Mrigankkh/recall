@@ -29,7 +29,14 @@ from recall import MemoryStore, handle_user_message, serialize_for_openai
 from openai import OpenAI
 
 # Initialize your LLM client (OpenAI, Groq, etc.)
-client = OpenAI(api_key="sk-...")
+from recall import MemoryStore, handle_user_message, serialize_for_openai
+from openai import OpenAI
+
+# Initialize your LLM client
+client = OpenAI(
+    api_key="sk-...", 
+    base_url="https://api.groq.com/openai/v1"  # Use any OpenAI-compatible API
+)
 
 def llm_call(prompt, system_prompt=None):
     messages = []
@@ -37,23 +44,27 @@ def llm_call(prompt, system_prompt=None):
         messages.append({"role": "system", "content": system_prompt})
     messages.append({"role": "user", "content": prompt})
 
-    response = client.chat.completions.create(model="gpt-4", messages=messages)
+    response = client.chat.completions.create(
+        model="mixtral-8x7b-32768",  # Or "gpt-4", etc.
+        messages=messages
+    )
     return response.choices[0].message.content.strip()
 
 # Memory setup
 store = MemoryStore()
 user_id = "user-001"
 
-# Extract and store memory from user input
+# Extract and store memory
 handle_user_message(user_id, "I'm allergic to peanuts", store, llm_call)
 
 # Retrieve and inject memory into prompt
 memories = store.search_memories(user_id, min_importance=0.4)
 system_prompt = serialize_for_openai(memories)
 
-# Generate response with context
+# Generate LLM response with memory context
 response = llm_call("What should I eat?", system_prompt)
 print(response)
+
 ```
 
 ## Features

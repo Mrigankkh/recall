@@ -7,3 +7,4 @@ recall.db
 *.egg-info
 *.db
 .venv
+dist
