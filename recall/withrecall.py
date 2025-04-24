@@ -1,6 +1,8 @@
-from recall.memory import MemoryStore
+from recall.memory import MemoryEntry
+from recall.memory.memory_store import MemoryStore
 from recall.handlers import handle_user_message
 from recall.llm.prompt_serializer import serialize_for_openai
+from typing import Optional, List
 
 class WithRecallSession:
     def __init__(self, llm, store: MemoryStore, user_id: str = "default", strategy="always", metadata=None):
@@ -24,5 +26,20 @@ class WithRecallSession:
         system_prompt = serialize_for_openai(memories)
         return self.llm(prompt=message, system_prompt=system_prompt)
 
-def withrecall(llm, store, user_id="default", strategy="always", metadata=None) -> WithRecallSession:
-    return WithRecallSession(llm, store, user_id, strategy, metadata)
+    def remember(
+        self,
+        content: str,
+        tags: Optional[List[str]] = None,
+        importance: float = 0.5,
+        ttl_days: int = 365,
+        source: str = "manual"
+    ):
+        entry = MemoryEntry(
+            user_id=self.user_id,
+            content=content,
+            tags=tags or [],
+            importance=importance,
+            ttl_days=ttl_days,
+            source=source
+        )
+        self.store.add_memory(entry)
