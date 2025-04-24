@@ -1,5 +1,5 @@
 from collections import defaultdict
-from recall.llm.extractor import extract_memories_from_input
+from .extractor import extract_memories_from_input
 
 _batch_cache = defaultdict(list)
 
